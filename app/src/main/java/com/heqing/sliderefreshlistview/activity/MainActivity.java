@@ -36,7 +36,7 @@ public class MainActivity extends FragmentActivity
                 case 1:
                     dataList.clear();
                     counter = 0;
-                    for (int i = 0;i<20;i++){
+                    for (int i = 0;i<10;i++){
                         Entity entity = new Entity("标题#"+counter
                                 ,"内容#"+counter,"星期"+(counter % 7 + 1));
                         dataList.add(entity);
@@ -68,17 +68,18 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
         listView = (RefreshListView)findViewById(R.id.refresh_list_view);
-//        for (int i = 0;i<10;i++){
-//            Entity entity = new Entity("标题#"+counter
-//                    ,"内容#"+counter,"星期"+(counter % 7 + 1));
-//            dataList.add(entity);
-//            counter++;
-//        }
+        counter = 0;
+        for (int i = 0;i<5;i++){
+            Entity entity = new Entity("标题#"+counter
+                    ,"内容#"+counter,"星期"+(counter % 7 + 1));
+            dataList.add(entity);
+            counter++;
+        }
         adapter = new MyAdapter(this,dataList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
         listView.setRefreshLoadMoreListener(this);
-        listView.startRefresh();
+//        listView.startRefresh();
     }
 
     @Override
