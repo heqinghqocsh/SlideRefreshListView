@@ -9,7 +9,7 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Scroller;
 
-import com.heqing.slidedraglistview.listener.RefreshLoadMoreListener;
+import com.heqing.sliderefreshlistview.listener.RefreshLoadMoreListener;
 
 /**
  * Created by 何清 on 2016/7/20.
@@ -170,15 +170,11 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
         return super.onInterceptTouchEvent(ev);
     }
 
-    public void completeRefresh(){
+    public void completeRefreshOrLoadMore(){
         if (mPullRefreshing){
             mPullRefreshing = false;
             resetHeaderHeight();
-        }
-    }
-
-    public void completeLoadMore(){
-        if (mPullLoading){
+        }else if (mPullLoading){
             mPullLoading = false;
             resetFooterHeight();
         }

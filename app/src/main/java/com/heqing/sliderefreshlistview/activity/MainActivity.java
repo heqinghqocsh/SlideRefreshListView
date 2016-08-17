@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 
 import com.heqing.sliderefreshlistview.R;
@@ -17,6 +18,9 @@ import com.heqing.sliderefreshlistview.widget.RefreshListView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class MainActivity extends FragmentActivity
         implements RefreshLoadMoreListener,AdapterView.OnItemClickListener{
 
@@ -32,13 +36,14 @@ public class MainActivity extends FragmentActivity
                 case 1:
                     dataList.clear();
                     counter = 0;
-                    for (int i = 0;i<10;i++){
+                    for (int i = 0;i<20;i++){
                         Entity entity = new Entity("标题#"+counter
                                 ,"内容#"+counter,"星期"+(counter % 7 + 1));
                         dataList.add(entity);
                         counter++;
                     }
                     adapter.notifyDataSetChanged();
+
                     break;
                 case 2:
                     for (int i = 0;i<10;i++){
@@ -54,6 +59,7 @@ public class MainActivity extends FragmentActivity
                 case 4:
                     break;
             }
+            listView.completeRefreshOrLoadMore();
         }
     };
 
@@ -62,31 +68,33 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
         listView = (RefreshListView)findViewById(R.id.refresh_list_view);
-        for (int i = 0;i<10;i++){
-            Entity entity = new Entity("标题#"+counter
-                    ,"内容#"+counter,"星期"+(counter % 7 + 1));
-            dataList.add(entity);
-            counter++;
-        }
+//        for (int i = 0;i<10;i++){
+//            Entity entity = new Entity("标题#"+counter
+//                    ,"内容#"+counter,"星期"+(counter % 7 + 1));
+//            dataList.add(entity);
+//            counter++;
+//        }
         adapter = new MyAdapter(this,dataList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-        Message msg1 = handler.obtainMessage(4,null);
-        handler.sendMessageDelayed(msg1, 4000);
+        listView.setRefreshLoadMoreListener(this);
+        listView.startRefresh();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        Toast.makeText(this,"点击了："+position,Toast.LENGTH_SHORT).show();
     }
-
-    @Override
-    public void loadMore() {
-
-    }
-
     @Override
     public void refresh() {
-
+        Message msg = handler.obtainMessage(1,null);
+        handler.sendMessageDelayed(msg,3000);
     }
+    @Override
+    public void loadMore() {
+        Message msg = handler.obtainMessage(2,null);
+        handler.sendMessageDelayed(msg,4000);
+    }
+
+
 }

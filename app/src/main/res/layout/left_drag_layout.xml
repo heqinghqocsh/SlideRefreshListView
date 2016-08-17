@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.heqing.slidedraglistview.widget.LeftDragViewGroup xmlns:android="http://schemas.android.com/apk/res/android"
+<com.heqing.sliderefreshlistview.widget.LeftDragViewGroup xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:id="@+id/rootView"
     android:layout_height="wrap_content">
@@ -67,4 +67,4 @@
     </RelativeLayout>
 
 
-</com.heqing.slidedraglistview.widget.LeftDragViewGroup>
+</com.heqing.sliderefreshlistview.widget.LeftDragViewGroup>

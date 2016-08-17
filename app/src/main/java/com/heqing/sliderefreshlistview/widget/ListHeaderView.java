@@ -12,8 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.heqing.slidedraglistview.R;
-
+import com.heqing.sliderefreshlistview.R;
 
 /**
  * Created by 何清 on 2016/7/20.
