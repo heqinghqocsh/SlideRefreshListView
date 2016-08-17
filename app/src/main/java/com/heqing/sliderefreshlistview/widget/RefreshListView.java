@@ -37,10 +37,14 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     private static final int SCROLLBACK_FOOTER = 2;
 
     private float mLastY = 0;
+    private float mLastX = 0;
     private float mTotalItemCount;
     private RefreshLoadMoreListener mRefreshLoadMoreListener;
     private boolean mAddFooter = false;
     private boolean mNeedRefresh = false;
+
+    private boolean mHorizontalSlide = false;//标志是否水平滑动
+    private boolean mVerticaltalSlide = false;//标志是否垂直滑动
 
     public RefreshListView(Context context) {
         super(context);
@@ -110,30 +114,41 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
         }
     }
 
+    private float deltaX = 0;
+    private float deltaY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 mLastY = ev.getRawY();
+                mLastX = ev.getX();
                 break;
             case MotionEvent.ACTION_MOVE:
-                float deltaY = ev.getRawY() - mLastY;
+                deltaY = ev.getRawY() - mLastY;
+                deltaX = ev.getX() - mLastX;
                 mLastY = ev.getRawY();
-                if (getFirstVisiblePosition() == 0 && mEnablePullRefresh){
-                    if (!mPullLoading){
-                        if (mHeaderView.getVisibleHeight() > 0 || deltaY > 0){
-                            updateHeaderHeight(deltaY / OFFSET_RADIO);
-                        }
-                    }
-                } else if(getLastVisiblePosition() == mTotalItemCount - 1 && mEnablePullLoadmore){
-                    if (!mPullRefreshing){
-                        if (mFooterView.getVisibleHeight() > 0 || deltaY < 0){
-                            updateFooterHeight(-deltaY / OFFSET_RADIO);
-                        }
+                mLastX = ev.getX();
+                if (mHorizontalSlide){
+                    dealHorizontalSlide();//处理水平滑动
+                    return true;
+                }else if (mVerticaltalSlide){
+                    dealVerticalSlide();//处理垂直滑动
+                }else{
+                    if (Math.abs(deltaX) >= Math.abs(deltaY)){
+                        mHorizontalSlide = true;
+                        dealHorizontalSlide();//处理水平滑动
+                        return true;
+                    }else{
+                        mVerticaltalSlide = true;
+                        dealVerticalSlide();//处理垂直滑动
                     }
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mHorizontalSlide = false;
+                mVerticaltalSlide = false;
+                mLastY = ev.getRawY();
+                mLastX = ev.getX();
                 if (getFirstVisiblePosition() == 0){
                     if (mEnablePullRefresh && !mPullRefreshing
                             && mHeaderView.getVisibleHeight() > mRealHeaderHeight){
@@ -160,11 +175,38 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
         return super.onTouchEvent(ev);
     }
 
+    /**
+     * 处理水平的滑动
+     */
+    private void dealHorizontalSlide(){
+
+    }
+
+    /**
+     * 处理水平的滑动
+     */
+    private void dealVerticalSlide(){
+        if (getFirstVisiblePosition() == 0 && mEnablePullRefresh){
+            if (!mPullLoading){
+                if (mHeaderView.getVisibleHeight() > 0 || deltaY > 0){
+                    updateHeaderHeight(deltaY / OFFSET_RADIO);
+                }
+            }
+        } else if(getLastVisiblePosition() == mTotalItemCount - 1 && mEnablePullLoadmore){
+            if (!mPullRefreshing){
+                if (mFooterView.getVisibleHeight() > 0 || deltaY < 0){
+                    updateFooterHeight(-deltaY / OFFSET_RADIO);
+                }
+            }
+        }
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
-                mLastY = ev.getRawY();
+//                mLastY = ev.getY();
+//                mLastX = ev.getX();
                 break;
         }
         return super.onInterceptTouchEvent(ev);

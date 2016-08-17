@@ -72,7 +72,7 @@ public class LeftDragViewGroup extends FrameLayout{
                 requestDisallowInterceptTouchEvent(false);
                 return false;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -92,9 +92,7 @@ public class LeftDragViewGroup extends FrameLayout{
                 }
                 break;
         }
-//        return true;
         return false;
-//        return mViewDragHelper.shouldInterceptTouchEvent(event);
     }
 
     @Override
