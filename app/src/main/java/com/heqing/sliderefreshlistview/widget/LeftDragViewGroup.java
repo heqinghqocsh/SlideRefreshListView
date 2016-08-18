@@ -1,13 +1,11 @@
 package com.heqing.sliderefreshlistview.widget;
 
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Scroller;
 
 /**
  * Created by 何清 on 2016/7/22.
@@ -17,27 +15,29 @@ import android.widget.FrameLayout;
 public class LeftDragViewGroup extends FrameLayout{
     private static final String TAG = "LeftDragViewGroup";
 
-    private ViewDragHelper mViewDragHelper;
+//    private ViewDragHelper mViewDragHelper;
     private View mContentView;
     private View mMenuView;
     private int mMaxDrag;
-    private float mLastX;
-    private float mLastY;
-    private float mDeltaX;
-    private float mDeltaY;
+    private float mLastX = 0;
+    private float mLastY = 0;
+    private float mDeltaX = 0;
+    private float mDeltaY = 0;
+
+    private Scroller mScroller;
 
     public LeftDragViewGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public LeftDragViewGroup(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
 
-    private void init(){
-        mViewDragHelper = ViewDragHelper.create(this, callback);
+    private void init(Context context){
+        mScroller = new Scroller(context);
     }
 
     @Override
@@ -48,51 +48,29 @@ public class LeftDragViewGroup extends FrameLayout{
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.i("tag", TAG + ":onTouchEvent");
-        mViewDragHelper.processTouchEvent(event);
-        switch (event.getAction()){
-//            case MotionEvent.ACTION_DOWN:
-//                Log.i("tag",TAG + ":onTouchEvent:ACTION_DOWN");
-//                mLastX = event.getX();
-//                mLastY = event.getY();
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                Log.i("tag",TAG + ":onTouchEvent:ACTION_MOVE");
-//                mDeltaX = event.getX() - mLastX;
-//                mDeltaY = event.getY() - mLastY;
-//                Log.i("tag",TAG + ":mDeltaX:"+mDeltaX+"---mDeltaY:"+mDeltaY);
-//                if (Math.abs(mDeltaX) > Math.abs(mDeltaY)){
-//                    mViewDragHelper.processTouchEvent(event);
-//                    return true;
-//                }
-//                break;
-//            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_UP:
-                requestDisallowInterceptTouchEvent(false);
-                return false;
+    public void offsetLeftAndRight(int offset) {
+        int left = mContentView.getLeft();
+
+        if (left <= 0){
+            if (left + offset >= 0){
+                offset = -left;
+            }else if (left + offset <= -mMaxDrag){
+                offset = -(left + mMaxDrag);
+            }
+            mContentView.offsetLeftAndRight(offset);
+            setTag(1,mContentView.getLeft());
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
         return false;
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        Log.i("tag", TAG + ":onInterceptTouchEvent");
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                mLastX = event.getX();
-                mLastY = event.getY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                mDeltaX = event.getX() - mLastX;
-                mDeltaY = event.getY() - mLastY;
-                Log.i("tag","mDeltaX:"+mDeltaX+"---mDeltaY:"+mDeltaY);
-                if (Math.abs(mDeltaX) > Math.abs(mDeltaY)){
-                    return true;
-                }
-                break;
-        }
-        return false;
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+        return true;
     }
 
     @Override
@@ -101,40 +79,18 @@ public class LeftDragViewGroup extends FrameLayout{
         mMaxDrag = mMenuView.getMeasuredWidth();
     }
 
-    private ViewDragHelper.Callback callback = new ViewDragHelper.Callback() {
-        @Override
-        public boolean tryCaptureView(View child, int pointerId) {
-            return child == mContentView;
-        }
-
-        @Override
-        public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            super.onViewReleased(releasedChild, xvel, yvel);
-            if(mContentView.getLeft() > -mMaxDrag / 2){
-                mViewDragHelper.smoothSlideViewTo(mContentView,0,0);
-                ViewCompat.postInvalidateOnAnimation(LeftDragViewGroup.this);
-            }else{
-                mViewDragHelper.smoothSlideViewTo(mContentView,-mMaxDrag,0);
-                ViewCompat.postInvalidateOnAnimation(LeftDragViewGroup.this);
-            }
-        }
-
-        @Override
-        public int clampViewPositionHorizontal(View child, int left, int dx) {
-            if (left > 0){
-                return 0;
-            }
-            if (left < -mMaxDrag){
-                return -mMaxDrag;
-            }
-            return left;
-        }
-    };
+    public void smoothSlideViewTo(int destX,int destY){
+        int scrollX = getScrollX();
+        int delta = destX - scrollX;
+        mScroller.startScroll(scrollX,0,delta,0,Math.abs(delta)*3);
+        invalidate();
+    }
 
     @Override
     public void computeScroll() {
-        if (mViewDragHelper.continueSettling(true)){
-            ViewCompat.postInvalidateOnAnimation(this);
+        if (mScroller.computeScrollOffset()){
+            scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+            postInvalidate();
         }
     }
 }
