@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
@@ -55,6 +56,8 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     private float mDownX;
     private float mDownY;
 
+    private int touchSlop;
+
 
     public RefreshListView(Context context) {
         super(context);
@@ -72,6 +75,7 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     }
 
     private void init(Context context){
+        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mScroller = new Scroller(context,new DecelerateInterpolator());
         setOnScrollListener(this);
         mHeaderView = new ListHeaderView(context);
@@ -146,7 +150,7 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                 }else{
                     if (Math.abs(deltaX) >= Math.abs(deltaY)){
                         mHorizontalSlide = true;
-                        dealHorizontalSlide((int)deltaX);//处理水平滑动
+                        dealHorizontalSlide((int) deltaX);//处理水平滑动
                         return true;
                     }else{
                         mVerticaltalSlide = true;
@@ -155,6 +159,9 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if (mHorizontalSlide){
+                    mPrePointedItemView.onTouchEvent(ev);
+                }
                 mHorizontalSlide = false;
                 mVerticaltalSlide = false;
                 mLastY = ev.getRawY();
@@ -232,11 +239,6 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                     mPrePointedItemView = (ViewGroup)getChildAt(position - getFirstVisiblePosition());
                     mPrePointedPosition = position;
                 }
-                break;
-            case MotionEvent.ACTION_MOVE:
-//                if (Math.abs(deltaX) >= Math.abs(deltaY)){
-//                    mHorizontalSlide = true;
-//                }
                 break;
         }
         return super.onInterceptTouchEvent(ev);

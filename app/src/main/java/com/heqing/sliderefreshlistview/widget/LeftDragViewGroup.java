@@ -58,19 +58,29 @@ public class LeftDragViewGroup extends FrameLayout{
                 offset = -(left + mMaxDrag);
             }
             mContentView.offsetLeftAndRight(offset);
-            setTag(1,mContentView.getLeft());
+//            setTag(1,mContentView.getLeft());
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()){
+            case MotionEvent.ACTION_UP:
+                int left = mContentView.getLeft();
+                if (left <= -mMaxDrag/2){
+                    smoothSlideViewTo(-mMaxDrag-left, 0);
+                }else{
+                    smoothSlideViewTo(-left,0);
+                }
+                break;
+        }
         return false;
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
-        return true;
+        return false;
     }
 
     @Override
@@ -80,16 +90,14 @@ public class LeftDragViewGroup extends FrameLayout{
     }
 
     public void smoothSlideViewTo(int destX,int destY){
-        int scrollX = getScrollX();
-        int delta = destX - scrollX;
-        mScroller.startScroll(scrollX,0,delta,0,Math.abs(delta)*3);
+        mScroller.startScroll(mContentView.getLeft(),0,destX,0,1000);
         invalidate();
     }
 
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()){
-            scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+            mContentView.offsetLeftAndRight(mScroller.getCurrX()-mContentView.getLeft());
             postInvalidate();
         }
     }
