@@ -2,10 +2,8 @@ package com.heqing.sliderefreshlistview.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
@@ -49,10 +47,10 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     private boolean mHorizontalSlide = false;//标志是否水平滑动
     private boolean mVerticaltalSlide = false;//标志是否垂直滑动
 
-    private ViewGroup mPrePointedItemView;//点中的前一个的ItemView
+    private LeftDragViewGroup mPrePointedItemView;//点中的前一个的ItemView
     private int mPrePointedPosition;//点中的前一个的position
     private boolean mMenuShow;//侧滑菜单是否显示
-    private boolean mTurnNormal;//是否恢复正常
+    private boolean mTurnNormal = false;//是否恢复正常
     private float mDownX;
     private float mDownY;
 
@@ -132,6 +130,10 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     private float deltaY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if (mTurnNormal){
+            mTurnNormal = false;
+            return false;
+        }
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 mLastY = ev.getRawY();
@@ -196,7 +198,6 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
      * 处理水平的滑动
      */
     private void dealHorizontalSlide(int offset){
-        Log.i("tag","水平滑动");
         mPrePointedItemView.offsetLeftAndRight(offset);
     }
 
@@ -230,13 +231,12 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                 mDownY = ev.getY();
                 int position = pointToPosition((int)mDownX,(int)mDownY);
                 if (position != -1){
-                    if (mMenuShow){
+                    if (mPrePointedItemView != null && mPrePointedItemView.isMenuShow()){
                         if (mPrePointedPosition != position){
                             turnNormal();
-                            mTurnNormal = true;
                         }
                     }
-                    mPrePointedItemView = (ViewGroup)getChildAt(position - getFirstVisiblePosition());
+                    mPrePointedItemView = (LeftDragViewGroup)getChildAt(position - getFirstVisiblePosition());
                     mPrePointedPosition = position;
                 }
                 break;
@@ -245,7 +245,8 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     }
 
     public void turnNormal(){
-
+        mTurnNormal = true;
+        mPrePointedItemView.turnNormal();
     }
 
     public void completeRefreshOrLoadMore(){

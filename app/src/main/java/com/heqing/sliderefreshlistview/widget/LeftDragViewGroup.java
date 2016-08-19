@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
+import com.heqing.sliderefreshlistview.R;
+
 /**
  * Created by 何清 on 2016/7/22.
  *
@@ -15,16 +17,12 @@ import android.widget.Scroller;
 public class LeftDragViewGroup extends FrameLayout{
     private static final String TAG = "LeftDragViewGroup";
 
-//    private ViewDragHelper mViewDragHelper;
     private View mContentView;
     private View mMenuView;
     private int mMaxDrag;
-    private float mLastX = 0;
-    private float mLastY = 0;
-    private float mDeltaX = 0;
-    private float mDeltaY = 0;
 
     private Scroller mScroller;
+    private boolean mMenuShow = false;
 
     public LeftDragViewGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -58,7 +56,7 @@ public class LeftDragViewGroup extends FrameLayout{
                 offset = -(left + mMaxDrag);
             }
             mContentView.offsetLeftAndRight(offset);
-//            setTag(1,mContentView.getLeft());
+            setTag(R.id.content_left, mContentView.getLeft());
         }
     }
 
@@ -69,7 +67,9 @@ public class LeftDragViewGroup extends FrameLayout{
                 int left = mContentView.getLeft();
                 if (left <= -mMaxDrag/2){
                     smoothSlideViewTo(-mMaxDrag-left, 0);
+                    mMenuShow = true;
                 }else{
+                    mMenuShow = false;
                     smoothSlideViewTo(-left,0);
                 }
                 break;
@@ -77,10 +77,17 @@ public class LeftDragViewGroup extends FrameLayout{
         return false;
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+    public boolean isMenuShow() {
+        return mMenuShow;
+    }
 
-        return false;
+    public void setMenuShow(boolean mMenuShow) {
+        this.mMenuShow = mMenuShow;
+    }
+
+    public void turnNormal(){
+        smoothSlideViewTo(-mContentView.getLeft(), 0);
+        mMenuShow = false;
     }
 
     @Override
