@@ -54,8 +54,7 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     private float mDownX;
     private float mDownY;
 
-    private int touchSlop;
-
+    private boolean isClick = true;
 
     public RefreshListView(Context context) {
         super(context);
@@ -73,7 +72,6 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     }
 
     private void init(Context context){
-        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mScroller = new Scroller(context,new DecelerateInterpolator());
         setOnScrollListener(this);
         mHeaderView = new ListHeaderView(context);
@@ -136,10 +134,12 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
         }
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
+                isClick = true;
                 mLastY = ev.getRawY();
                 mLastX = ev.getX();
                 break;
             case MotionEvent.ACTION_MOVE:
+                isClick = false;
                 deltaY = ev.getRawY() - mLastY;
                 deltaX = ev.getX() - mLastX;
                 mLastY = ev.getRawY();
@@ -161,8 +161,9 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mTurnNormal = false;
                 if (mHorizontalSlide){
-                    mPrePointedItemView.onTouchEvent(ev);
+                    mPrePointedItemView.actionUp();
                 }
                 mHorizontalSlide = false;
                 mVerticaltalSlide = false;
@@ -240,6 +241,9 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
                     mPrePointedPosition = position;
                 }
                 break;
+            case MotionEvent.ACTION_UP:
+                mTurnNormal = false;
+                break;
         }
         return super.onInterceptTouchEvent(ev);
     }
@@ -247,6 +251,16 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
     public void turnNormal(){
         mTurnNormal = true;
         mPrePointedItemView.turnNormal();
+    }
+
+    public boolean isCurrentItemMenuShow(){
+        if (mPrePointedItemView != null && mPrePointedItemView.isMenuShow()){
+            turnNormal();
+            mTurnNormal = false;
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void completeRefreshOrLoadMore(){
@@ -338,6 +352,14 @@ public class RefreshListView extends ListView implements AbsListView.OnScrollLis
             }
         }
         setSelection(0);
+    }
+
+    public boolean isClick() {
+        return isClick;
+    }
+
+    public void setIsClick(boolean isClick) {
+        this.isClick = isClick;
     }
 
     @Override

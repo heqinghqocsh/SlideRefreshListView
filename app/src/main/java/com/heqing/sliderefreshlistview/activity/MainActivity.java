@@ -22,23 +22,23 @@ import java.util.List;
  *
  */
 public class MainActivity extends FragmentActivity
-        implements RefreshLoadMoreListener,AdapterView.OnItemClickListener{
+        implements RefreshLoadMoreListener, AdapterView.OnItemClickListener {
 
     private RefreshListView listView;
     List<Entity> dataList = new ArrayList<>();
     private MyAdapter adapter;
     private int counter = 0;
 
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case 1:
                     dataList.clear();
                     counter = 0;
-                    for (int i = 0;i<10;i++){
-                        Entity entity = new Entity("标题#"+counter
-                                ,"内容#"+counter,"星期"+(counter % 7 + 1));
+                    for (int i = 0; i < 10; i++) {
+                        Entity entity = new Entity("标题#" + counter
+                                , "内容#" + counter, "星期" + (counter % 7 + 1));
                         dataList.add(entity);
                         counter++;
                     }
@@ -46,9 +46,9 @@ public class MainActivity extends FragmentActivity
 
                     break;
                 case 2:
-                    for (int i = 0;i<10;i++){
-                        Entity entity = new Entity("标题#"+counter
-                                ,"内容#"+counter,"星期"+(counter % 7 + 1));
+                    for (int i = 0; i < 10; i++) {
+                        Entity entity = new Entity("标题#" + counter
+                                , "内容#" + counter, "星期" + (counter % 7 + 1));
                         dataList.add(entity);
                         counter++;
                     }
@@ -67,34 +67,39 @@ public class MainActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
-        listView = (RefreshListView)findViewById(R.id.refresh_list_view);
+        listView = (RefreshListView) findViewById(R.id.refresh_list_view);
         counter = 0;
-        for (int i = 0;i<5;i++){
-            Entity entity = new Entity("标题#"+counter
-                    ,"内容#"+counter,"星期"+(counter % 7 + 1));
+        for (int i = 0; i < 5; i++) {
+            Entity entity = new Entity("标题#" + counter
+                    , "内容#" + counter, "星期" + (counter % 7 + 1));
             dataList.add(entity);
             counter++;
         }
-        adapter = new MyAdapter(this,dataList);
+        adapter = new MyAdapter(this, dataList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
         listView.setRefreshLoadMoreListener(this);
-//        listView.startRefresh();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(this,"点击了："+position,Toast.LENGTH_SHORT).show();
+        if (listView.isClick()) {
+            if (!listView.isCurrentItemMenuShow()) {
+                Toast.makeText(this, "点击了：" + position, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
+
     @Override
     public void refresh() {
-        Message msg = handler.obtainMessage(1,null);
-        handler.sendMessageDelayed(msg,3000);
+        Message msg = handler.obtainMessage(1, null);
+        handler.sendMessageDelayed(msg, 3000);
     }
+
     @Override
     public void loadMore() {
-        Message msg = handler.obtainMessage(2,null);
-        handler.sendMessageDelayed(msg,4000);
+        Message msg = handler.obtainMessage(2, null);
+        handler.sendMessageDelayed(msg, 4000);
     }
 
 

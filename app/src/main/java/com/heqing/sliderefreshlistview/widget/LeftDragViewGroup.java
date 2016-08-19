@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
-import com.heqing.sliderefreshlistview.R;
-
 /**
  * Created by 何清 on 2016/7/22.
  *
@@ -56,25 +54,18 @@ public class LeftDragViewGroup extends FrameLayout{
                 offset = -(left + mMaxDrag);
             }
             mContentView.offsetLeftAndRight(offset);
-            setTag(R.id.content_left, mContentView.getLeft());
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()){
-            case MotionEvent.ACTION_UP:
-                int left = mContentView.getLeft();
-                if (left <= -mMaxDrag/2){
-                    smoothSlideViewTo(-mMaxDrag-left, 0);
-                    mMenuShow = true;
-                }else{
-                    mMenuShow = false;
-                    smoothSlideViewTo(-left,0);
-                }
-                break;
+    public void actionUp(){
+        int left = mContentView.getLeft();
+        if (left <= -mMaxDrag/2){
+            smoothSlideViewTo(-mMaxDrag-left, 0);
+            mMenuShow = true;
+        }else{
+            mMenuShow = false;
+            smoothSlideViewTo(-left,0);
         }
-        return false;
     }
 
     public boolean isMenuShow() {
@@ -97,7 +88,7 @@ public class LeftDragViewGroup extends FrameLayout{
     }
 
     public void smoothSlideViewTo(int destX,int destY){
-        mScroller.startScroll(mContentView.getLeft(),0,destX,0,1000);
+        mScroller.startScroll(mContentView.getLeft(),0,destX,0,500);
         invalidate();
     }
 
